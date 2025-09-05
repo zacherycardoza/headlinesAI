@@ -45,4 +45,10 @@ class User extends Authenticatable
             'password' => 'hashed',
         ];
     }
+
+
+    public function topics()
+    {
+        return $this->belongsToMany(Topic::class, 'user_topics')->withTimestamps();
+    }
 }
