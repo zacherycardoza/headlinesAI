@@ -39,19 +39,19 @@
                 <h3 class="text-xl font-bold mb-2 text-indigo-600">Free</h3>
                 <p class="mb-4">Basic AI news feed.</p>
                 <p class="text-2xl font-bold mb-4">$0</p>
-                <a href="#" class="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700 transition">Sign Up</a>
+                <a href="{{ route('register') }}" class="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700 transition">Sign Up</a>
             </div>
             <div class="bg-white p-6 rounded-lg shadow hover:shadow-lg transition">
                 <h3 class="text-xl font-bold mb-2 text-indigo-600">Pro</h3>
                 <p class="mb-4">Full personalized experience.</p>
                 <p class="text-2xl font-bold mb-4">$9/mo</p>
-                <a href="#" class="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700 transition">Sign Up</a>
+                <a href="#" class="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700 transition">Coming Soon</a>
             </div>
             <div class="bg-white p-6 rounded-lg shadow hover:shadow-lg transition">
                 <h3 class="text-xl font-bold mb-2 text-indigo-600">Enterprise</h3>
                 <p class="mb-4">For large organizations and teams.</p>
                 <p class="text-2xl font-bold mb-4">Contact us</p>
-                <a href="#" class="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700 transition">Contact</a>
+                <a href="#" class="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700 transition">Coming Soon</a>
             </div>
         </div>
     </div>
