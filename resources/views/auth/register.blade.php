@@ -6,6 +6,13 @@
 <div class="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4">
     <div class="max-w-md w-full bg-white p-8 rounded-lg shadow">
         <h2 class="text-2xl font-bold text-gray-800 mb-6 text-center">Create a HeadlinesAI Account</h2>
+        @if ($errors->any())
+            <div class="mb-4 text-red-600">
+                @foreach ($errors->all() as $error)
+                    <div>{{ $error }}</div>
+                @endforeach
+            </div>
+        @endif
         <form method="POST" action="{{ route('register') }}" class="space-y-4">
             @csrf
             <div>
