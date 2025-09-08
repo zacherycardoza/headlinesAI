@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\LoginController;
 use App\Http\Controllers\RegisterController;
 use App\Http\Controllers\FeedController;
+use App\Http\Controllers\TopicController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -27,3 +28,11 @@ Route::post('/logout', function () {
 Route::get('/feed', [FeedController::class, 'index'])
     ->middleware('auth')
     ->name('feed');
+
+Route::get('/topics', [TopicController::class, 'edit'])
+    ->middleware('auth')
+    ->name('topics');
+
+Route::put('/topics', [TopicController::class, 'update'])
+    ->middleware('auth')
+    ->name('topics.update');
