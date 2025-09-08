@@ -34,7 +34,8 @@ class SummarizeArticle implements ShouldQueue
         if (!empty($article->summary)) {
             return;
         }
-
+        Log::info("Starting summarization for article {$article->id}");
+        error_log("Starting summarization for article {$article->id}");
         try {
             // Limit content to avoid token overflow
             $content = Str::limit($article->content, 3000);
