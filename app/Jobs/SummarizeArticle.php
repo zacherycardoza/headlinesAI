@@ -9,8 +9,8 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use OpenAI\Laravel\Facades\OpenAI;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Log;
 
 class SummarizeArticle implements ShouldQueue
 {
@@ -18,8 +18,8 @@ class SummarizeArticle implements ShouldQueue
 
     protected Article $article;
 
-    public $tries = 3;           // Retry failed jobs up to 3 times
-    public $backoff = 10;        // Wait 10 seconds between retries
+    public $tries = 3;    // retry failed jobs 3 times
+    public $backoff = 10; // wait 10 seconds between retries
 
     public function __construct(Article $article)
     {
@@ -30,15 +30,18 @@ class SummarizeArticle implements ShouldQueue
     {
         $article = $this->article;
 
-        // Skip if already summarized
         if (!empty($article->summary)) {
+            error_log("Skipping article {$article->id}, already summarized.");
             return;
         }
-        Log::info("Starting summarization for article {$article->id}");
-        error_log("Starting summarization for article {$article->id}");
+
+        // Log start of summarization
+        error_log("Starting summarization for article {$article->id} ({$article->title})");
+
         try {
-            // Limit content to avoid token overflow
             $content = Str::limit($article->content, 3000);
+
+            error_log("Content length for article {$article->id}: " . strlen($content));
 
             $response = OpenAI::chat()->create([
                 'model' => 'gpt-3.5-turbo',
@@ -52,14 +55,16 @@ class SummarizeArticle implements ShouldQueue
 
             $summary = $response->choices[0]->message->content ?? '';
 
-            $article->summary = $summary;
-            $article->save();
-
-            Log::info("Article {$article->id} summarized successfully.");
+            if (empty($summary)) {
+                error_log("OpenAI returned empty summary for article {$article->id}");
+            } else {
+                $article->summary = $summary;
+                $article->save();
+                error_log("Article {$article->id} summarized successfully.");
+            }
         } catch (\Exception $e) {
-            Log::error("Failed to summarize article {$article->id}: " . $e->getMessage());
-            // Let the job retry automatically if it fails
-            throw $e;
+            error_log("Failed to summarize article {$article->id}: " . $e->getMessage());
+            throw $e; // ensure job retries
         }
     }
 }
