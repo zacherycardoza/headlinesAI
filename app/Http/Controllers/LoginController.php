@@ -15,11 +15,6 @@ class LoginController extends Controller
 
     function login(Request $request)
     {
-        dd([
-            'request_token' => $request->_token,
-            'session_token' => $request->session()->token(),
-            'all_input'     => $request->all(),
-        ]);
         $credentials = $request->validate([
             'email' => ['required', 'email'],
             'password' => ['required'],
