@@ -32,10 +32,6 @@
                               focus:ring-2 focus:ring-indigo-400 focus:outline-none">
             </div>
             <div class="flex items-center justify-between">
-                <div>
-                    <input type="checkbox" name="remember" id="remember" class="mr-1">
-                    <label for="remember" class="text-gray-600 dark:text-gray-400">Remember Me</label>
-                </div>
                 <a class="text-indigo-600 dark:text-indigo-400 hover:underline text-sm">Forgot Password?</a>
             </div>
             <button type="submit"
