@@ -7,6 +7,7 @@ use App\Http\Controllers\LoginController;
 use App\Http\Controllers\RegisterController;
 use App\Http\Controllers\FeedController;
 use App\Http\Controllers\TopicController;
+use App\Http\Controllers\ContactController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -38,3 +39,5 @@ Route::get('/topics', [TopicController::class, 'edit'])
 Route::put('/topics', [TopicController::class, 'update'])
     ->middleware('auth')
     ->name('topics.update');
+
+Route::post('/contact', [ContactController::class, 'send'])->name('contact.send');

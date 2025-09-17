@@ -61,12 +61,22 @@
 <section id="contact" class="py-20 bg-gray-50 dark:bg-gray-900">
     <div class="max-w-2xl mx-auto px-4 text-center">
         <h2 class="text-3xl font-bold mb-6 text-indigo-700 dark:text-indigo-400">Contact Us</h2>
-        <form class="grid gap-4">
-            <input type="text" placeholder="Your Name" class="p-3 rounded border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 w-full focus:ring-2 focus:ring-indigo-400 focus:outline-none">
-            <input type="email" placeholder="Your Email" class="p-3 rounded border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 w-full focus:ring-2 focus:ring-indigo-400 focus:outline-none">
-            <textarea placeholder="Message" class="p-3 rounded border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 w-full focus:ring-2 focus:ring-indigo-400 focus:outline-none"></textarea>
+        <form method="POST" action="{{ route('contact.send') }}" class="grid gap-4">
+            @csrf
+            <input type="text" name="name" placeholder="Your Name" required
+                class="p-3 rounded border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 w-full focus:ring-2 focus:ring-indigo-400 focus:outline-none">
+            <input type="email" name="email" placeholder="Your Email" required
+                class="p-3 rounded border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 w-full focus:ring-2 focus:ring-indigo-400 focus:outline-none">
+            <textarea name="message" placeholder="Message" required
+                    class="p-3 rounded border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 w-full focus:ring-2 focus:ring-indigo-400 focus:outline-none"></textarea>
             <button class="bg-indigo-600 text-white px-6 py-3 rounded hover:bg-indigo-700 transition">Send Message</button>
         </form>
+
+        @if(session('success'))
+            <p class="mt-4 text-green-600 dark:text-green-400">{{ session('success') }}</p>
+        @elseif(session('error'))
+            <p class="mt-4 text-red-600 dark:text-red-400">{{ session('error') }}</p>
+        @endif
     </div>
 </section>
 @endsection
