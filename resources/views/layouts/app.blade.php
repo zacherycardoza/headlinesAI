@@ -12,6 +12,8 @@
             darkMode: 'class'
         }
     </script>
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9493851323150154"
+     crossorigin="anonymous"></script>s
 </head>
 <body class="bg-gray-50 dark:bg-gray-900 font-sans">
     <nav class="bg-white dark:bg-gray-800 shadow">

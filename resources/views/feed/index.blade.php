@@ -10,15 +10,10 @@
     @if ($articles->hasPages())
     <div class="mt-8 pb-4 flex justify-end">
         <nav class="inline-flex -space-x-px rounded-md shadow-sm" aria-label="Pagination">
-            {{-- Previous Page --}}
             @if ($articles->onFirstPage())
-                <span class="px-3 py-1 rounded-l-md border border-gray-300 dark:border-gray-700 bg-gray-100 dark:bg-gray-800 text-gray-400 cursor-not-allowed">
-                    &laquo;
-                </span>
+                <span class="px-3 py-1 rounded-l-md border border-gray-300 dark:border-gray-700 bg-gray-100 dark:bg-gray-800 text-gray-400 cursor-not-allowed">&laquo;</span>
             @else
-                <a href="{{ $articles->previousPageUrl() }}" class="px-3 py-1 rounded-l-md border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700">
-                    &laquo;
-                </a>
+                <a href="{{ $articles->previousPageUrl() }}" class="px-3 py-1 rounded-l-md border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700">&laquo;</a>
             @endif
 
             {{-- Small screens: current page only --}}
@@ -29,34 +24,26 @@
             {{-- Large screens: full range --}}
             @foreach ($articles->getUrlRange(1, $articles->lastPage()) as $page => $url)
                 @if ($page == $articles->currentPage())
-                    <span class="hidden sm:inline px-3 py-1 border-t border-b border-gray-300 dark:border-gray-700 bg-indigo-600 text-white">
-                        {{ $page }}
-                    </span>
+                    <span class="hidden sm:inline px-3 py-1 border-t border-b border-gray-300 dark:border-gray-700 bg-indigo-600 text-white">{{ $page }}</span>
                 @else
-                    <a href="{{ $url }}" class="hidden sm:inline px-3 py-1 border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700">
-                        {{ $page }}
-                    </a>
+                    <a href="{{ $url }}" class="hidden sm:inline px-3 py-1 border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700">{{ $page }}</a>
                 @endif
             @endforeach
 
-            {{-- Next Page --}}
             @if ($articles->hasMorePages())
-                <a href="{{ $articles->nextPageUrl() }}" class="px-3 py-1 rounded-r-md border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700">
-                    &raquo;
-                </a>
+                <a href="{{ $articles->nextPageUrl() }}" class="px-3 py-1 rounded-r-md border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700">&raquo;</a>
             @else
-                <span class="px-3 py-1 rounded-r-md border border-gray-300 dark:border-gray-700 bg-gray-100 dark:bg-gray-800 text-gray-400 cursor-not-allowed">
-                    &raquo;
-                </span>
+                <span class="px-3 py-1 rounded-r-md border border-gray-300 dark:border-gray-700 bg-gray-100 dark:bg-gray-800 text-gray-400 cursor-not-allowed">&raquo;</span>
             @endif
         </nav>
     </div>
     @endif
 
-    {{-- Articles --}}
+    {{-- Articles Grid --}}
     @if($articles->count())
         <div class="grid gap-6 sm:grid-cols-1 md:grid-cols-2">
-            @foreach($articles as $article)
+            @foreach($articles as $index => $article)
+                {{-- Article Card --}}
                 <div class="bg-white dark:bg-gray-800 shadow rounded p-6 hover:shadow-lg transition">
                     @if(!empty($article->image_url))
                         <img src="{{ $article->image_url }}" alt="{{ $article->title }}" class="w-full h-48 object-cover rounded mb-4">
@@ -78,11 +65,20 @@
                     </div>
 
                     <div class="mt-4">
-                        <a href="{{ $article->url }}" target="_blank" class="text-indigo-600 dark:text-indigo-400 hover:underline">
-                            Read full article
-                        </a>
+                        <a href="{{ $article->url }}" target="_blank" class="text-indigo-600 dark:text-indigo-400 hover:underline">Read full article</a>
                     </div>
                 </div>
+
+                {{-- Insert Ad every 3 articles --}}
+                @if(($index + 1) % 4 === 0)
+                    <div class="col-span-full my-6 p-4 bg-gray-100 dark:bg-gray-700 text-center rounded">
+                        <span class="text-gray-500 dark:text-gray-300">Advertisement</span>
+                        {{-- Replace below with actual ad script --}}
+                        <div class="mt-2">
+                            <img src="https://via.placeholder.com/728x90?text=Your+Ad+Here" alt="Ad" class="mx-auto">
+                        </div>
+                    </div>
+                @endif
             @endforeach
         </div>
 
@@ -90,44 +86,28 @@
         @if ($articles->hasPages())
         <div class="mt-8 pb-4 flex justify-end">
             <nav class="inline-flex -space-x-px rounded-md shadow-sm" aria-label="Pagination">
-                {{-- Previous Page --}}
                 @if ($articles->onFirstPage())
-                    <span class="px-3 py-1 rounded-l-md border border-gray-300 dark:border-gray-700 bg-gray-100 dark:bg-gray-800 text-gray-400 cursor-not-allowed">
-                        &laquo;
-                    </span>
+                    <span class="px-3 py-1 rounded-l-md border border-gray-300 dark:border-gray-700 bg-gray-100 dark:bg-gray-800 text-gray-400 cursor-not-allowed">&laquo;</span>
                 @else
-                    <a href="{{ $articles->previousPageUrl() }}" class="px-3 py-1 rounded-l-md border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700">
-                        &laquo;
-                    </a>
+                    <a href="{{ $articles->previousPageUrl() }}" class="px-3 py-1 rounded-l-md border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700">&laquo;</a>
                 @endif
 
-                {{-- Small screens: current page only --}}
                 <span class="px-3 py-1 border-t border-b border-gray-300 dark:border-gray-700 bg-indigo-600 text-white sm:hidden">
                     {{ $articles->currentPage() }}
                 </span>
 
-                {{-- Large screens: full range --}}
                 @foreach ($articles->getUrlRange(1, $articles->lastPage()) as $page => $url)
                     @if ($page == $articles->currentPage())
-                        <span class="hidden sm:inline px-3 py-1 border-t border-b border-gray-300 dark:border-gray-700 bg-indigo-600 text-white">
-                            {{ $page }}
-                        </span>
+                        <span class="hidden sm:inline px-3 py-1 border-t border-b border-gray-300 dark:border-gray-700 bg-indigo-600 text-white">{{ $page }}</span>
                     @else
-                        <a href="{{ $url }}" class="hidden sm:inline px-3 py-1 border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700">
-                            {{ $page }}
-                        </a>
+                        <a href="{{ $url }}" class="hidden sm:inline px-3 py-1 border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700">{{ $page }}</a>
                     @endif
                 @endforeach
 
-                {{-- Next Page --}}
                 @if ($articles->hasMorePages())
-                    <a href="{{ $articles->nextPageUrl() }}" class="px-3 py-1 rounded-r-md border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700">
-                        &raquo;
-                    </a>
+                    <a href="{{ $articles->nextPageUrl() }}" class="px-3 py-1 rounded-r-md border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700">&raquo;</a>
                 @else
-                    <span class="px-3 py-1 rounded-r-md border border-gray-300 dark:border-gray-700 bg-gray-100 dark:bg-gray-800 text-gray-400 cursor-not-allowed">
-                        &raquo;
-                    </span>
+                    <span class="px-3 py-1 rounded-r-md border border-gray-300 dark:border-gray-700 bg-gray-100 dark:bg-gray-800 text-gray-400 cursor-not-allowed">&raquo;</span>
                 @endif
             </nav>
         </div>
