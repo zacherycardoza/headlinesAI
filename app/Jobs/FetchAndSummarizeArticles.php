@@ -16,6 +16,8 @@ class FetchAndSummarizeArticles implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
+    public function __construct() {}
+
     public function handle(): void
     {
         $topics = Topic::all();
@@ -37,7 +39,6 @@ class FetchAndSummarizeArticles implements ShouldQueue
         foreach ($topics as $topic) {
             foreach ($rssUrls as $url) {
                 try {
-                    // Cache RSS feed as a string for 15 minutes
                     $rssContent = cache()->remember("rss_feed_" . md5($url), now()->addMinutes(15), function () use ($url) {
                         return @file_get_contents($url) ?: '';
                     });
@@ -55,11 +56,9 @@ class FetchAndSummarizeArticles implements ShouldQueue
 
                     foreach ($xml->channel->item as $item) {
                         $articleUrl = (string) ($item->link ?? '');
-                        if (Article::where('url', $articleUrl)->exists()) {
-                            continue; // skip duplicates
-                        }
+                        if (Article::where('url', $articleUrl)->exists()) continue;
 
-                        // Extract image safely
+                        // Extract image
                         $image = '';
                         if (isset($item->enclosure['url'])) {
                             $image = (string) $item->enclosure['url'];
@@ -67,7 +66,6 @@ class FetchAndSummarizeArticles implements ShouldQueue
                             $image = (string) ($item->children('media', true)->content->attributes()->url ?? '');
                         }
 
-                        // Fallback: scrape article page if RSS has no image
                         if (empty($image) && !empty($articleUrl)) {
                             try {
                                 $html = @file_get_contents($articleUrl);
@@ -77,29 +75,24 @@ class FetchAndSummarizeArticles implements ShouldQueue
                                     $dom->loadHTML($html);
                                     libxml_clear_errors();
 
-                                    // Try Open Graph image
-                                    $metas = $dom->getElementsByTagName('meta');
-                                    foreach ($metas as $meta) {
+                                    foreach ($dom->getElementsByTagName('meta') as $meta) {
                                         if ($meta->getAttribute('property') === 'og:image') {
                                             $image = $meta->getAttribute('content');
                                             break;
                                         }
                                     }
 
-                                    // Fallback: first <img> on page
                                     if (empty($image)) {
                                         $imgs = $dom->getElementsByTagName('img');
-                                        if ($imgs->length > 0) {
-                                            $image = $imgs->item(0)->getAttribute('src');
-                                        }
+                                        if ($imgs->length > 0) $image = $imgs->item(0)->getAttribute('src');
                                     }
                                 }
                             } catch (\Exception $e) {
-                                Log::warning("Failed to fetch main image from {$articleUrl}: " . $e->getMessage());
+                                Log::warning("Failed to fetch image from {$articleUrl}: " . $e->getMessage());
                             }
                         }
 
-                        Log::info("Found image for article {$articleUrl}: {$image}");
+                        if ($item->description === null || $image === null) continue;
 
                         $article = Article::create([
                             'title' => (string) ($item->title ?? 'No title'),
@@ -107,15 +100,12 @@ class FetchAndSummarizeArticles implements ShouldQueue
                             'url' => $articleUrl,
                             'source' => parse_url($url, PHP_URL_HOST),
                             'published_at' => isset($item->pubDate) ? date('Y-m-d H:i:s', strtotime($item->pubDate)) : now(),
-                            'topic_id' => $topic->id,
+                            'topic_id' => $topic->id, // temporary; will be overwritten by SummarizeArticle
                             'image_url' => $image,
                         ]);
 
-                        // Dispatch summarize job
                         SummarizeArticle::dispatch($article);
-
-                        // Optional: small delay to avoid hitting rate limits
-                        usleep(500_000); // 0.5 seconds
+                        usleep(500_000); // avoid rate limits
                     }
                 } catch (\Exception $e) {
                     Log::error("Error fetching RSS feed {$url}: " . $e->getMessage());

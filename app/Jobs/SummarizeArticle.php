@@ -3,6 +3,7 @@
 namespace App\Jobs;
 
 use App\Models\Article;
+use App\Models\Topic;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -18,8 +19,8 @@ class SummarizeArticle implements ShouldQueue
 
     protected Article $article;
 
-    public $tries = 3;    // retry failed jobs 3 times
-    public $backoff = 10; // wait 10 seconds between retries
+    public $tries = 3;
+    public $backoff = 10;
 
     public function __construct(Article $article)
     {
@@ -31,40 +32,58 @@ class SummarizeArticle implements ShouldQueue
         $article = $this->article;
 
         if (!empty($article->summary)) {
-            error_log("Skipping article {$article->id}, already summarized.");
+            Log::info("Skipping article {$article->id}, already summarized.");
             return;
         }
 
-        // Log start of summarization
-        error_log("Starting summarization for article {$article->id} ({$article->title})");
+        Log::info("Starting summarization for article {$article->id} ({$article->title})");
 
         try {
             $content = Str::limit($article->content, 3000);
 
-            error_log("Content length for article {$article->id}: " . strlen($content));
+            // Prepare JSON prompt
+            $topicsList = Topic::pluck('name')->toArray();
+            $prompt = "Summarize the following article concisely in one paragraph. Then choose the most relevant topic from this list: " . implode(", ", $topicsList) . ". Return a JSON object with keys 'summary' and 'topic'.\n\nArticle content:\n{$content}";
 
             $response = OpenAI::chat()->create([
                 'model' => 'gpt-3.5-turbo',
                 'messages' => [
                     [
                         'role' => 'user',
-                        'content' => "Summarize the following article concisely:\n\n{$content}"
+                        'content' => $prompt
                     ],
                 ],
             ]);
 
-            $summary = $response->choices[0]->message->content ?? '';
-
-            if (empty($summary)) {
-                error_log("OpenAI returned empty summary for article {$article->id}");
-            } else {
-                $article->summary = $summary;
-                $article->save();
-                error_log("Article {$article->id} summarized successfully.");
+            $aiOutput = $response->choices[0]->message->content ?? '';
+            if (empty($aiOutput)) {
+                Log::warning("OpenAI returned empty response for article {$article->id}");
+                return;
             }
+
+            // Parse JSON safely
+            $data = json_decode($aiOutput, true);
+            if (!$data || !isset($data['summary'], $data['topic'])) {
+                Log::warning("Invalid AI JSON for article {$article->id}: " . $aiOutput);
+                return;
+            }
+
+            $article->summary = $data['summary'];
+
+            // Assign topic if it exists
+            $topic = Topic::where('name', $data['topic'])->first();
+            if ($topic) {
+                $article->topic_id = $topic->id;
+                Log::info("Assigned topic '{$topic->name}' to article {$article->id}");
+            } else {
+                Log::warning("Suggested topic '{$data['topic']}' not found in DB for article {$article->id}");
+            }
+
+            $article->save();
+            Log::info("Article {$article->id} summarized successfully.");
         } catch (\Exception $e) {
-            error_log("Failed to summarize article {$article->id}: " . $e->getMessage());
-            throw $e; // ensure job retries
+            Log::error("Failed to summarize article {$article->id}: " . $e->getMessage());
+            throw $e; // ensures job retries
         }
     }
 }
